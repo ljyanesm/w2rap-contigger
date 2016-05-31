@@ -303,12 +303,14 @@ public:
     { return compare(k1,k2) != 0; }
 
     friend int compare( KMer const& k1, KMer const& k2 )
-    { int result = 0;
+    { return memcmp(k1.mVal,k2.mVal,sizeof(storage_type)*STORAGE_UNITS_PER_KMER);
+     /*   
+      int result = 0;
       storage_type const* end(k1.mVal + STORAGE_UNITS_PER_KMER);
       storage_type const* itr2(k2.mVal);
       for ( storage_type const* itr1 = k1.mVal; itr1 != end; ++itr1, ++itr2 )
         if ( (result = compare(*itr1,*itr2)) ) break;
-      return result; }
+      return result; */}
 
     friend std::ostream& operator<<( std::ostream& os, KMer const& kmer )
     { for ( iterator itr(kmer.begin()), end(kmer.end()); itr != end; ++itr )
