@@ -26,7 +26,7 @@ endif()
 #    set(ZLIB_PATH "/usr/lib" CACHE FILEPATH "ZLIB Library path")
 #endif()
 
-find_package(ZLIB)
+find_package(ZLIB REQUIRED)
 if (ZLIB_FOUND)
   include_directories(${ZLIB_INCLUDE_DIRS})
 endif()
@@ -296,7 +296,6 @@ $<TARGET_OBJECTS:base2_libs>)
 add_executable(04_patching ${SOURCE_FILES_PATCHING_04} $<TARGET_OBJECTS:base_libs> $<TARGET_OBJECTS:base2_libs>)
 add_executable(05_simplify ${SOURCE_FILES_SIMPLIFY_05} $<TARGET_OBJECTS:base_libs> $<TARGET_OBJECTS:base2_libs>)
 add_executable(06_scaffolding ${SOURCE_FILES_SCAFFOLDING_06} $<TARGET_OBJECTS:base_libs> $<TARGET_OBJECTS:base2_libs>)
-
 
 ##Zlib link
 if (ZLIB_FOUND)
