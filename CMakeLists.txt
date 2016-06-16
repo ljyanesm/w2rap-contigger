@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 2.8)
 project (w2rap-contigger)
 
 ## Compiler flags
-SET(CMAKE_CXX_FLAGS "-g -fopenmp -fpermissive -w -Wno-deprecated -std=c++11 -Ofast -lz -DNDEBUG")
+SET(CMAKE_CXX_FLAGS "-g -fopenmp -fpermissive -w -Wno-deprecated -std=c++11 -Ofast -DNDEBUG")
 #SET(CMAKE_CXX_LINK_EXECUTABLE "/usr/bin/ld")
 add_definitions(${CMAKE_CXX_FLAGS})
 
@@ -26,7 +26,7 @@ endif()
 #    set(ZLIB_PATH "/usr/lib" CACHE FILEPATH "ZLIB Library path")
 #endif()
 
-find_package(ZLIB)
+find_package(ZLIB REQUIRED)
 if (ZLIB_FOUND)
   include_directories(${ZLIB_INCLUDE_DIRS})
 endif()
@@ -297,18 +297,8 @@ add_executable(04_patching ${SOURCE_FILES_PATCHING_04} $<TARGET_OBJECTS:base_lib
 add_executable(05_simplify ${SOURCE_FILES_SIMPLIFY_05} $<TARGET_OBJECTS:base_libs> $<TARGET_OBJECTS:base2_libs>)
 add_executable(06_scaffolding ${SOURCE_FILES_SCAFFOLDING_06} $<TARGET_OBJECTS:base_libs> $<TARGET_OBJECTS:base2_libs>)
 
-if (DEFINED MALLOC_LIBRARY)
-    ## Link libraries
-    target_link_libraries(01_unipaths ${LIBSO_NAME})
-    target_link_libraries(02_qgraph ${LIBSO_NAME})
-    target_link_libraries(03_clean ${LIBSO_NAME})
-    target_link_libraries(04_patching ${LIBSO_NAME})
-    target_link_libraries(05_simplify ${LIBSO_NAME})
-    target_link_libraries(06_scaffolding ${LIBSO_NAME})
-endif()
-
 ##Zlib link
-if (DEFINED ZLIB_PATH)
+if (ZLIB_FOUND)
   set(ZLIB libz.so)
   target_link_libraries(01_unipaths ${ZLIB_LIBRARIES})
   target_link_libraries(02_qgraph ${ZLIB_LIBRARIES})
@@ -317,3 +307,24 @@ if (DEFINED ZLIB_PATH)
   target_link_libraries(05_simplify ${ZLIB_LIBRARIES})
   target_link_libraries(06_scaffolding ${ZLIB_LIBRARIES})
 endif()
+
+#Have the malloc library linked at the end, for compatibility issues with gperftools/tcmalloc
+if (DEFINED MALLOC_LIBRARY)
+    ## Link libraries
+    if (LIBSO_NAME MATCHES ".*tcmalloc*")
+        target_link_libraries(01_unipaths ${LIBSO_NAME} profiler)
+        target_link_libraries(02_qgraph ${LIBSO_NAME} profiler)
+        target_link_libraries(03_clean ${LIBSO_NAME} profiler)
+        target_link_libraries(04_patching ${LIBSO_NAME} profiler)
+        target_link_libraries(05_simplify ${LIBSO_NAME} profiler)
+        target_link_libraries(06_scaffolding ${LIBSO_NAME} profiler)
+    else ()
+        target_link_libraries(01_unipaths ${LIBSO_NAME})
+        target_link_libraries(02_qgraph ${LIBSO_NAME})
+        target_link_libraries(03_clean ${LIBSO_NAME})
+        target_link_libraries(04_patching ${LIBSO_NAME})
+        target_link_libraries(05_simplify ${LIBSO_NAME})
+        target_link_libraries(06_scaffolding ${LIBSO_NAME})
+    endif()
+endif()
+
